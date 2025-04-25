@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.seat_sense_flutter"
-    compileSdk = 35
+    compileSdk = flutter.compileSdkVersion
     // ndkVersion = flutter.ndkVersion
     ndkVersion = "27.0.12077973"
 
@@ -25,8 +25,8 @@ android {
         applicationId = "com.gsfcu.seat_sense"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 21
-        targetSdk = 35
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
