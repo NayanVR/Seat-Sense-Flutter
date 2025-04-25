@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:seat_sense_flutter/models/user_model.dart';
+import 'package:seat_sense_flutter/screens/admin_home_content.dart';
 import 'package:seat_sense_flutter/screens/login_screen.dart';
 import 'package:seat_sense_flutter/services/auth_service.dart';
+import 'package:seat_sense_flutter/screens/student_home_content.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Seat Sense'),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.logOut),
@@ -36,12 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Text(
-          widget.user.role == 'admin' ? 'Admin' : 'Student',
-          style: const TextStyle(fontSize: 24),
-        ),
-      ),
+      body: widget.user.role == 'student'
+          ? const StudentHomeContent()
+          : const AdminHomeContent(),
     );
   }
 }
