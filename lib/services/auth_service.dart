@@ -111,10 +111,27 @@ class AuthService {
         'image': await MultipartFile.fromFile(imagePath, filename: 'face.jpg'),
       });
 
-      final response = await _apiService.post('/register-face', data: formData);
+      final response = await _apiService.post(
+        '/auth/register-face',
+        data: formData,
+      );
 
       if (response.statusCode == 200) {
-        return true;
+        final user = await getProfile();
+        if (user != null) {
+          await _saveUserProfile(user);
+          return true;
+        } else {
+          // Use ShadToaster for error message
+          ShadToaster.of(context).show(
+            ShadToast(
+              title: const Text(
+                'Failed to get and store profile',
+              ), // Use destructive for errors
+            ),
+          );
+          return false;
+        }
       } else {
         ShadToaster.of(context).show(
           ShadToast(
