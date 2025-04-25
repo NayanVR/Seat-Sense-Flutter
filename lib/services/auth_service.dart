@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:seat_sense_flutter/models/signup_model.dart';
 import 'package:seat_sense_flutter/models/user_model.dart';
 import 'package:seat_sense_flutter/services/api_service.dart';
 import 'package:seat_sense_flutter/utils/secure_storage.dart';
@@ -68,6 +69,77 @@ class AuthService {
     }
   }
 
+  Future<bool> signup(BuildContext context, SignupRequest req) async {
+    // Pass BuildContext
+    try {
+      final response = await _apiService.post(
+        '/auth/signup',
+        data: req.toJson(),
+      );
+
+      if (response.statusCode == 200) {
+        final accessToken = response.data['access_token'];
+        await SecureStorage.setAccessToken(accessToken);
+        return true;
+      } else {
+        // Use ShadToaster for error message
+        ShadToaster.of(
+          context,
+        ).show(ShadToast(title: Text('Signup failed: ${response.statusCode}')));
+        return false;
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'Signup failed';
+      if (e.response != null && e.response?.data != null) {
+        errorMessage = e.response?.data['detail'] ?? errorMessage;
+      }
+      // Use ShadToaster for error message
+      ShadToaster.of(context).show(ShadToast(title: Text(errorMessage)));
+      return false;
+    } catch (e) {
+      // Use ShadToaster for error message
+      ShadToaster.of(
+        context,
+      ).show(const ShadToast(title: Text('An unexpected error occurred')));
+      return false;
+    }
+  }
+
+  Future<bool> registerFace(BuildContext context, String imagePath) async {
+    try {
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(imagePath, filename: 'face.jpg'),
+      });
+
+      final response = await _apiService.post('/register-face', data: formData);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        ShadToaster.of(context).show(
+          ShadToast(
+            title: Text('Face registration failed: ${response.statusCode}'),
+          ),
+        );
+        return false;
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'Face registration failed';
+      if (e.response != null && e.response?.data != null) {
+        errorMessage = e.response?.data['detail'] ?? errorMessage;
+      }
+      ShadToaster.of(context).show(ShadToast(title: Text(errorMessage)));
+      return false;
+    } catch (e) {
+      ShadToaster.of(context).show(
+        const ShadToast(
+          title: Text('An unexpected error occurred during face registration'),
+        ),
+      );
+      return false;
+    }
+  }
+
   Future<User?> getProfile() async {
     try {
       final response = await _apiService.post('/auth/profile');
@@ -77,7 +149,7 @@ class AuthService {
       } else {
         return null;
       }
-    } on DioException catch (e) {
+    } on DioException {
       return null;
     } catch (e) {
       return null;

@@ -3,8 +3,13 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 
 class PasswordInput extends StatefulWidget {
   final TextEditingController controller;
+  final String placeholder;
 
-  const PasswordInput({super.key, required this.controller});
+  const PasswordInput({
+    super.key,
+    required this.controller,
+    this.placeholder = 'Password',
+  });
 
   @override
   State<PasswordInput> createState() => _PasswordInputState();
@@ -17,7 +22,7 @@ class _PasswordInputState extends State<PasswordInput> {
   Widget build(BuildContext context) {
     return ShadInput(
       controller: widget.controller,
-      placeholder: const Text('Password'),
+      placeholder: Text(widget.placeholder),
       obscureText: obscure,
       padding: const EdgeInsets.only(left: 12),
       trailing: SizedBox(

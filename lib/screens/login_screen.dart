@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:seat_sense_flutter/screens/home_screen.dart';
+import 'package:seat_sense_flutter/screens/signup_screen.dart';
 import 'package:seat_sense_flutter/services/auth_service.dart';
 import 'package:seat_sense_flutter/widgets/password_input.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -20,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Login')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -34,6 +36,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.emailAddress,
                   ),
                   PasswordInput(controller: _passwordController),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ShadButton.link(
+                      padding: EdgeInsets.all(0),
+                      child: const Text('Forgot Password?'),
+                      onPressed: () {
+                        // TODO: Handle forgot password logic
+                      },
+                    ),
+                  ),
                   SizedBox(
                     width: double.infinity,
                     child: ShadButton(
@@ -41,10 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       child:
                           _isLoading
                               ? SizedBox(
-                                height:
-                                    20.0, // Smaller height for the loading indicator
-                                width:
-                                    20.0, // Smaller width for the loading indicator
+                                height: 20.0,
+                                width: 20.0,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   color:
@@ -55,6 +65,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               )
                               : const Text('Login'),
                     ),
+                  ),
+                  SizedBox(height: 16.0),
+                  ShadButton.link(
+                    child: const Text("Don't have an account? Sign up"),
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const SignupScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
