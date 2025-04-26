@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:seat_sense_flutter/screens/view_events_screen.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 // import 'package:seat_sense_flutter/screens/occupancy.dart';
 
@@ -128,9 +129,8 @@ class AdminHomeContent extends StatelessWidget {
           ShadButton(
             child: const Text('View Events'),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('View Events tapped')),
-              );
+              Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const ViewEventsScreen()));
             },
           ),
         ],
