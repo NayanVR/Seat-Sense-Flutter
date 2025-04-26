@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:seat_sense_flutter/models/event_model.dart';
+import 'package:seat_sense_flutter/screens/mark_attendance_screen.dart';
 //import 'package:seat_sense_flutter/screens/occupancy_screen.dart';
 import 'package:seat_sense_flutter/services/event_service.dart';
-import 'package:seat_sense_flutter/models/event_model.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class StudentHomeContent extends StatefulWidget {
@@ -31,17 +32,15 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
           GestureDetector(
             onTap: () {
-            //   Navigator.of(context).push(
-            //     MaterialPageRoute(builder: (context) => const OccupancyScreen()),
-            //   );
+              //   Navigator.of(context).push(
+              //     MaterialPageRoute(builder: (context) => const OccupancyScreen()),
+              //   );
             },
             child: Stack(
               alignment: Alignment.center,
@@ -61,7 +60,9 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.black.withOpacity(0.5), // you can also try Colors.grey.withOpacity(0.3)
+                    color: Colors.black.withOpacity(
+                      0.5,
+                    ), // you can also try Colors.grey.withOpacity(0.3)
                   ),
                 ),
                 const Text(
@@ -77,19 +78,22 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
             ),
           ),
 
+          const SizedBox(height: 16),
           Divider(),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
+
           ShadSelect<String>(
             placeholder: const Text('Select an Event'),
             minWidth: double.infinity,
-            options: _events
-                .map(
-                  (event) => ShadOption(
-                    value: event.id,
-                    child: Text('${event.name} (${event.date})'),
-                  ),
-                )
-                .toList(),
+            options:
+                _events
+                    .map(
+                      (event) => ShadOption(
+                        value: event.id,
+                        child: Text('${event.name} (${event.date})'),
+                      ),
+                    )
+                    .toList(),
             selectedOptionBuilder: (context, value) {
               final selected = _events.firstWhere((e) => e.id == value);
               return Text('${selected.name} (${selected.date})');
@@ -100,13 +104,25 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
               });
             },
           ),
-          const SizedBox(height: 16),
           ShadButton(
-            child: const Text('MARK ATTENDANCE'),
             width: double.infinity,
             onPressed: () {
-              // Future: Implement attendance logic here
+              if (_selectedEventId == null) {
+                ShadToaster.of(
+                  context,
+                ).show(ShadToast(title: const Text('Please select an event')));
+              } else {
+                // Navigate to the Mark Attendance screen with the selected event ID
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            MarkAttendanceScreen(eventId: _selectedEventId!),
+                  ),
+                );
+              }
             },
+            child: const Text('Mark Attendance'),
           ),
         ],
       ),

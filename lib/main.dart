@@ -58,7 +58,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return ShadApp.material(
       title: 'My App',
-      // scaffoldMessengerKey: AppConfig.messengerKey, // Removed invalid parameter
       materialThemeBuilder: (context, theme) {
         return theme.copyWith(
           appBarTheme: const AppBarTheme(
