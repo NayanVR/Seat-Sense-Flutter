@@ -41,6 +41,7 @@ dependencies:
   logger: ^2.5.0
   camera: ^0.11.1
   image: ^4.5.4
+  geolocator: ^14.0.0
 
 dev_dependencies:
   flutter_test:
