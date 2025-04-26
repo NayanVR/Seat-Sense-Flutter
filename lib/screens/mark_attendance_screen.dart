@@ -3,24 +3,26 @@ import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as img; // Add this import
-import 'package:seat_sense_flutter/screens/home_screen.dart'; // Import HomeScreen
-import 'package:seat_sense_flutter/services/auth_service.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image/image.dart' as img;
+import 'package:seat_sense_flutter/services/attendance_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
-class FaceRegistrationScreen extends StatefulWidget {
-  const FaceRegistrationScreen({super.key});
+class MarkAttendanceScreen extends StatefulWidget {
+  final String eventId;
+
+  const MarkAttendanceScreen({super.key, required this.eventId});
 
   @override
-  State<FaceRegistrationScreen> createState() => _FaceRegistrationState();
+  State<MarkAttendanceScreen> createState() => _MarkAttendanceScreenState();
 }
 
-class _FaceRegistrationState extends State<FaceRegistrationScreen> {
+class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
   CameraController? _cameraController;
   Future<void>? _initializeControllerFuture;
   File? _imageFile;
   bool _isLoading = false;
-  final AuthService _authService = AuthService();
+  final AttendanceService _attendanceService = AttendanceService();
 
   @override
   void initState() {
@@ -59,10 +61,61 @@ class _FaceRegistrationState extends State<FaceRegistrationScreen> {
     setState(() {});
   }
 
-  @override
-  void dispose() {
-    _cameraController?.dispose();
-    super.dispose();
+  Future<Position> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ShadToaster.of(context).show(
+        const ShadToast(
+          title: Text('Location services are disabled. Please enable them.'),
+        ),
+      );
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check for location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ShadToaster.of(context).show(
+          const ShadToast(
+            title: Text('Location permission denied. Please allow access.'),
+          ),
+        );
+        return Future.error('Location permission denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ShadToaster.of(context).show(
+        const ShadToast(
+          title: Text('Location permissions are permanently denied.'),
+        ),
+      );
+      return Future.error('Location permissions are permanently denied');
+    }
+
+    try {
+      // Get the current location
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 10,
+          timeLimit: Duration(seconds: 5),
+        ),
+      );
+
+      return position;
+    } catch (e) {
+      ShadToaster.of(
+        context,
+      ).show(ShadToast(title: Text('Error fetching location: $e')));
+      return Future.error('Error fetching location: $e');
+    }
   }
 
   Future<void> _takePicture() async {
@@ -99,57 +152,48 @@ class _FaceRegistrationState extends State<FaceRegistrationScreen> {
     }
   }
 
-  Future<void> _uploadImage(BuildContext context) async {
-    setState(() {
-      _isLoading = true;
-    });
+  Future<void> _markAttendance() async {
     if (_imageFile == null) {
-      if (mounted) {
-        ShadToaster.of(
-          context,
-        ).show(const ShadToast(title: Text('No image selected')));
-      }
-      setState(() {
-        _isLoading = false;
-      });
+      ShadToaster.of(
+        context,
+      ).show(const ShadToast(title: Text('Please take a picture')));
       return;
     }
 
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Try to get current location if not already available
+    Position currentPosition = await _getCurrentLocation().catchError((error) {
+      setState(() {
+        _isLoading = false;
+      });
+      throw Exception('Failed to get location: $error');
+    });
+
     try {
-      final success = await _authService.registerFace(
-        context,
-        _imageFile!.path,
+      final success = await _attendanceService.markAttendance(
+        context: context,
+        eventId: widget.eventId,
+        latitude: currentPosition.latitude,
+        longitude: currentPosition.longitude,
+        imagePath: _imageFile!.path,
       );
+
       if (success) {
-        // Fetch user profile after successful login
-        final user = await _authService.getStoredProfile();
-        setState(() {
-          _isLoading = false;
-        });
-        if (user != null) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen(user: user)),
-          );
-        } else {
-          // Handle the case where the profile fetch fails
-          if (mounted) {
-            ShadToaster.of(context).show(
-              const ShadToast(title: Text('Failed to fetch user profile')),
-            );
-          }
-        }
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
         ShadToaster.of(
           context,
-        ).show(ShadToast(title: Text('Error uploading image: $e')));
+        ).show(const ShadToast(title: Text('Attendance marked successfully!')));
+        Navigator.pop(context);
+      } else {
+        ShadToaster.of(
+          context,
+        ).show(const ShadToast(title: Text('Failed to mark attendance')));
       }
+    } catch (e) {
+      ShadToaster.of(context).show(ShadToast(title: Text('Error: $e')));
+    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -157,9 +201,15 @@ class _FaceRegistrationState extends State<FaceRegistrationScreen> {
   }
 
   @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Face Registration')),
+      appBar: AppBar(title: const Text('Mark Attendance')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -236,15 +286,14 @@ class _FaceRegistrationState extends State<FaceRegistrationScreen> {
                   ShadButton.outline(
                     onPressed: () {
                       setState(() {
-                        _imageFile =
-                            null; // Reset the image file to retake the picture
+                        _imageFile = null;
                       });
                     },
                     child: const Text('Retake'),
                   ),
                   ShadButton(
-                    onPressed: _isLoading ? null : () => _uploadImage(context),
-                    width: 140,
+                    onPressed: _isLoading ? null : _markAttendance,
+                    width: 150,
                     child:
                         _isLoading
                             ? SizedBox(
@@ -258,7 +307,7 @@ class _FaceRegistrationState extends State<FaceRegistrationScreen> {
                                     ).colorScheme.primaryForeground,
                               ),
                             )
-                            : const Text('Register Face'),
+                            : const Text('Mark Attendance'),
                   ),
                 ],
               ),
