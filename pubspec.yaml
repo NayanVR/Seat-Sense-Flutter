@@ -68,6 +68,7 @@ flutter:
   assets:
     - lib/assets/audi_filled.jpeg
     - lib/assets/audi.jpeg
+    - lib/assets/logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

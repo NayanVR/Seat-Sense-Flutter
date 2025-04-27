@@ -21,7 +21,10 @@ class _MyAppState extends State<MyApp> {
   Widget _defaultHome = Scaffold(
     // Display loading indicator initially
     body: Center(
-      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+      child: Hero(
+        tag: 'logo',
+        child: Image.asset('lib/assets/logo.png', width: 100, height: 100),
+      ),
     ),
   );
   final AuthService _authService = AuthService();
