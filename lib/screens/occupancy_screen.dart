@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:convert';
+import 'package:logger/logger.dart';
 import 'package:seat_sense_flutter/services/web_socket_service.dart';
+import 'package:seat_sense_flutter/utils/constants.dart';
 import 'package:seat_sense_flutter/utils/secure_storage.dart';
 
 class OccupancyScreen extends StatefulWidget {
@@ -15,6 +18,7 @@ class _OccupancyScreenState extends State<OccupancyScreen> {
   final WebSocketService _webSocketService = WebSocketService();
   Map<String, dynamic> seatData = {};
   String selectedFilter = 'All';
+  final Logger logger = Logger();
 
   @override
   void initState() {
@@ -26,50 +30,46 @@ class _OccupancyScreenState extends State<OccupancyScreen> {
   void dispose() {
     _webSocketService.disconnect();
     // Reset orientation back to normal
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     super.dispose();
   }
 
   Future<void> _initializeWebSocket() async {
     String? token = await SecureStorage.getAccessToken();
-    _webSocketService.connect('ws://192.168.0.152:8000/ws?token=$token');
+    _webSocketService.connect('${Constants.apiBaseWebSocketUrl}?token=$token');
 
-    _webSocketService.stream?.listen((message) {
-      // Print the raw message for debugging
-      print('Raw message: $message');
-
-      // Clean the message (if necessary) before decoding
-      final correctedMessage = message.replaceAll("'", '"');
-      print('Corrected message: $correctedMessage'); // Check the message format
-
-      try {
-        // Decode the message into a map
-        final decoded = jsonDecode(correctedMessage);
-        print('Decoded message: $decoded'); // Print the decoded data for inspection
-
+    _webSocketService.stream?.listen(
+      (message) {
+        final correctedMessage = message.replaceAll("'", '"');
+        try {
+          // Decode the message into a map
+          final decoded = jsonDecode(correctedMessage);
+          setState(() {
+            seatData = Map<String, dynamic>.from(decoded);
+          });
+        } catch (e) {
+          logger.e('Error decoding JSON: $e');
+          setState(() {
+            seatData = {}; // Reset seatData in case of decoding error
+          });
+        }
+      },
+      onError: (error) {
+        logger.e('WebSocket Error: $error');
         setState(() {
-          seatData = Map<String, dynamic>.from(decoded);
+          seatData = {}; // Reset seatData in case of WebSocket error
         });
-      } catch (e) {
-        print('Error decoding JSON: $e');
-        setState(() {
-          seatData = {};  // Reset seatData in case of decoding error
-        });
-      }
-    }, onError: (error) {
-      print('WebSocket Error: $error');
-      setState(() {
-        seatData = {};  // Reset seatData in case of WebSocket error
-      });
-    });
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (seatData.isEmpty) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -82,11 +82,15 @@ class _OccupancyScreenState extends State<OccupancyScreen> {
                 selectedFilter = value;
               });
             },
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 'All', child: Text('All Seats')),
-              const PopupMenuItem(value: 'Occupied', child: Text('Occupied Only')),
-              const PopupMenuItem(value: 'Free', child: Text('Free Only')),
-            ],
+            itemBuilder:
+                (context) => [
+                  const PopupMenuItem(value: 'All', child: Text('All Seats')),
+                  const PopupMenuItem(
+                    value: 'Occupied',
+                    child: Text('Occupied Only'),
+                  ),
+                  const PopupMenuItem(value: 'Free', child: Text('Free Only')),
+                ],
           ),
         ],
       ),
@@ -123,7 +127,10 @@ class _OccupancyScreenState extends State<OccupancyScreen> {
                 width: 30,
                 child: Text(
                   rowKey,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -143,15 +150,15 @@ class _OccupancyScreenState extends State<OccupancyScreen> {
   List<Widget> buildSeatsForRow(String rowKey, Map<String, dynamic> seats) {
     List<Widget> seatWidgets = [];
     seats.forEach((seatNumberString, status) {
-      final seatNumber = int.tryParse(seatNumberString); // Convert string to int
+      final seatNumber = int.tryParse(
+        seatNumberString,
+      ); // Convert string to int
 
       if (seatNumber != null) {
         if (selectedFilter == 'All' ||
             (selectedFilter == 'Occupied' && status == 1) ||
             (selectedFilter == 'Free' && status == 0)) {
-          seatWidgets.add(
-            buildSeat(rowKey, seatNumber, status),
-          );
+          seatWidgets.add(buildSeat(rowKey, seatNumber, status));
         }
       }
     });
@@ -159,25 +166,22 @@ class _OccupancyScreenState extends State<OccupancyScreen> {
   }
 
   Widget buildSeat(String row, int seatNumber, int status) {
-    return GestureDetector(
-      onTap: () {
-        String seatStatus = status == 1 ? "Occupied" : "Available";
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        height: 40,
-        width: 40,
-        decoration: BoxDecoration(
-          color: status == 1 ? Colors.red : Colors.green,
-          borderRadius: BorderRadius.circular(12.0), // Rounded corners
-          boxShadow: [
-            BoxShadow(
-              color: status == 1 ? Colors.redAccent : Colors.greenAccent,
-              blurRadius: 2,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(
+        color: status == 1 ? Colors.red : Colors.green,
+        borderRadius: BorderRadius.circular(12.0), // Rounded corners
+        boxShadow: [
+          BoxShadow(
+            color: status == 1 ? Colors.redAccent : Colors.greenAccent,
+            blurRadius: 2,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: GestureDetector(
         child: Center(
           child: Text(
             seatNumber.toString(),

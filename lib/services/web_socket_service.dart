@@ -8,7 +8,7 @@ class WebSocketService {
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
     } catch (e) {
-      print("Error connecting to WebSocket: $e");
+      print('Error connecting to WebSocket: $e');
     }
   }
 
@@ -17,7 +17,7 @@ class WebSocketService {
     if (_channel != null) {
       return _channel?.stream;
     } else {
-      print("WebSocket is not initialized yet.");
+      print('WebSocket is not initialized yet.');
       return null;
     }
   }
@@ -27,7 +27,7 @@ class WebSocketService {
     if (_channel != null) {
       _channel?.sink.add(data);
     } else {
-      print("WebSocket is not connected.");
+      print('WebSocket is not connected.');
     }
   }
 
@@ -35,9 +35,9 @@ class WebSocketService {
   void disconnect() {
     if (_channel != null) {
       _channel?.sink.close();
-      print("WebSocket disconnected.");
+      print('WebSocket disconnected.');
     } else {
-      print("WebSocket is not initialized.");
+      print('WebSocket is not initialized.');
     }
   }
 }
