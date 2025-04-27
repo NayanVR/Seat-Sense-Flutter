@@ -129,7 +129,7 @@ class _ViewEventsScreenState extends State<ViewEventsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        ShadButton(
+                        ShadButton.outline(
                           child: const Text('Cancel'),
                           onPressed: () => Navigator.pop(context),
                         ),

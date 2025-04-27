@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:seat_sense_flutter/screens/view_events_screen.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 // import 'package:seat_sense_flutter/screens/occupancy.dart';
+import 'package:seat_sense_flutter/screens/view_attendance_screen.dart';
 
 
 class AdminHomeContent extends StatelessWidget {
@@ -72,10 +73,8 @@ class AdminHomeContent extends StatelessWidget {
           // View Attendance Image Card
           GestureDetector(
             onTap: () {
-              // TODO: Navigate to attendance screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('View Attendance tapped')),
-              );
+              Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const ViewAttendanceScreen()));
             },
             child: Container(
               width: double.infinity,
