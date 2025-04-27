@@ -1,14 +1,16 @@
+import 'package:logger/logger.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketService {
   WebSocketChannel? _channel;
+  Logger logger = Logger();
 
   /// Initialize the WebSocket connection
   void connect(String url) {
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
     } catch (e) {
-      print('Error connecting to WebSocket: $e');
+      logger.e('Error connecting to WebSocket: $e');
     }
   }
 
@@ -17,7 +19,7 @@ class WebSocketService {
     if (_channel != null) {
       return _channel?.stream;
     } else {
-      print('WebSocket is not initialized yet.');
+      logger.w('WebSocket is not initialized yet.');
       return null;
     }
   }
@@ -27,7 +29,7 @@ class WebSocketService {
     if (_channel != null) {
       _channel?.sink.add(data);
     } else {
-      print('WebSocket is not connected.');
+      logger.w('WebSocket is not connected.');
     }
   }
 
@@ -35,9 +37,9 @@ class WebSocketService {
   void disconnect() {
     if (_channel != null) {
       _channel?.sink.close();
-      print('WebSocket disconnected.');
+      logger.i('WebSocket disconnected.');
     } else {
-      print('WebSocket is not initialized.');
+      logger.w('WebSocket is not initialized.');
     }
   }
 }

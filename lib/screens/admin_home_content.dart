@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:seat_sense_flutter/screens/view_events_screen.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:seat_sense_flutter/screens/occupancy_screen.dart';
 import 'package:seat_sense_flutter/screens/view_attendance_screen.dart';
-
+import 'package:seat_sense_flutter/screens/view_events_screen.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 class AdminHomeContent extends StatelessWidget {
   const AdminHomeContent({super.key});
@@ -19,8 +18,10 @@ class AdminHomeContent extends StatelessWidget {
           // View Occupancy Image Card
           GestureDetector(
             onTap: () {
-              Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const OccupancyScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const OccupancyScreen()),
+              );
             },
             child: Container(
               width: double.infinity,
@@ -45,7 +46,9 @@ class AdminHomeContent extends StatelessWidget {
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      color: Colors.black.withOpacity(0.5), // you can also try Colors.grey.withOpacity(0.3)
+                      color: Colors.black.withAlpha(
+                        (0.5 * 255).toInt(),
+                      ), // you can also try Colors.grey.withOpacity(0.3)
                     ),
                   ),
                   const Text(
@@ -73,8 +76,10 @@ class AdminHomeContent extends StatelessWidget {
           // View Attendance Image Card
           GestureDetector(
             onTap: () {
-              Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const ViewAttendanceScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ViewAttendanceScreen()),
+              );
             },
             child: Container(
               width: double.infinity,
@@ -87,7 +92,7 @@ class AdminHomeContent extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.asset(
-                      'lib/assets/audi_filled.jpeg', 
+                      'lib/assets/audi_filled.jpeg',
                       height: 180,
                       width: screenWidth,
                       fit: BoxFit.cover,
@@ -99,7 +104,9 @@ class AdminHomeContent extends StatelessWidget {
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      color: Colors.black.withOpacity(0.5), // you can also try Colors.grey.withOpacity(0.3)
+                      color: Colors.black.withAlpha(
+                        (0.5 * 255).toInt(),
+                      ), // you can also try Colors.grey.withOpacity(0.3)
                     ),
                   ),
                   const Text(
@@ -128,8 +135,10 @@ class AdminHomeContent extends StatelessWidget {
           ShadButton(
             child: const Text('View Events'),
             onPressed: () {
-              Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const ViewEventsScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ViewEventsScreen()),
+              );
             },
           ),
         ],

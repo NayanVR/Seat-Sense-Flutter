@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image/image.dart' as img;
 import 'package:seat_sense_flutter/services/attendance_service.dart';
+import 'package:seat_sense_flutter/widgets/circular_button_loading.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class MarkAttendanceScreen extends StatefulWidget {
@@ -296,17 +297,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                     width: 150,
                     child:
                         _isLoading
-                            ? SizedBox(
-                              height: 20.0,
-                              width: 20.0,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color:
-                                    ShadTheme.of(
-                                      context,
-                                    ).colorScheme.primaryForeground,
-                              ),
-                            )
+                            ? CircularButtonLoading()
                             : const Text('Mark Attendance'),
                   ),
                 ],

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img; // Add this import
 import 'package:seat_sense_flutter/screens/home_screen.dart'; // Import HomeScreen
 import 'package:seat_sense_flutter/services/auth_service.dart';
+import 'package:seat_sense_flutter/widgets/circular_button_loading.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class FaceRegistrationScreen extends StatefulWidget {
@@ -247,17 +248,7 @@ class _FaceRegistrationState extends State<FaceRegistrationScreen> {
                     width: 140,
                     child:
                         _isLoading
-                            ? SizedBox(
-                              height: 20.0,
-                              width: 20.0,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color:
-                                    ShadTheme.of(
-                                      context,
-                                    ).colorScheme.primaryForeground,
-                              ),
-                            )
+                            ? CircularButtonLoading()
                             : const Text('Register Face'),
                   ),
                 ],

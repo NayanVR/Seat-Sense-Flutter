@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:seat_sense_flutter/models/otp_model.dart';
 import 'package:seat_sense_flutter/models/signup_model.dart';
 import 'package:seat_sense_flutter/models/user_model.dart';
 import 'package:seat_sense_flutter/services/api_service.dart';
 import 'package:seat_sense_flutter/utils/secure_storage.dart';
-import 'package:shadcn_ui/shadcn_ui.dart'; // Import Shadcn UI
+import 'package:seat_sense_flutter/utils/toasts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
@@ -35,42 +36,68 @@ class AuthService {
           await _saveUserProfile(user);
           return true;
         } else {
-          // Use ShadToaster for error message
-          ShadToaster.of(context).show(
-            ShadToast(
-              title: const Text(
-                'Failed to get and store profile',
-              ), // Use destructive for errors
-            ),
-          );
+          showErrorToast(context, message: 'Failed to get and store profile');
           return false;
         }
       } else {
-        // Use ShadToaster for error message
-        ShadToaster.of(
+        showErrorToast(
           context,
-        ).show(ShadToast(title: Text('Login failed: ${response.statusCode}')));
+          message: 'Login failed: ${response.statusCode}',
+        );
         return false;
       }
     } on DioException catch (e) {
-      String errorMessage = 'Login failed';
-      if (e.response != null && e.response?.data != null) {
-        errorMessage = e.response?.data['detail'] ?? errorMessage;
-      }
-      // Use ShadToaster for error message
-      ShadToaster.of(context).show(ShadToast(title: Text(errorMessage)));
+      showDioErrorToast(context, e, 'Login failed');
       return false;
     } catch (e) {
-      // Use ShadToaster for error message
-      ShadToaster.of(
-        context,
-      ).show(ShadToast(title: Text('An unexpected error occurred')));
+      showErrorToast(context);
+      return false;
+    }
+  }
+
+  Future<bool> sendOtp(BuildContext context, String email) async {
+    try {
+      final response = await _apiService.post(
+        '/auth/send-otp',
+        data: SendOTPRequest(email: email).toJson(),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } on DioException catch (e) {
+      showDioErrorToast(context, e, 'Failed to send OTP');
+      return false;
+    } catch (e) {
+      showErrorToast(context);
+      return false;
+    }
+  }
+
+  Future<bool> verifyOtp(BuildContext context, String email, String otp) async {
+    try {
+      final response = await _apiService.post(
+        '/auth/verify-otp',
+        data: VerifyOTPRequest(email: email, otp: int.parse(otp)).toJson(),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } on DioException catch (e) {
+      showDioErrorToast(context, e, 'OTP verification failed');
+      return false;
+    } catch (e) {
+      showErrorToast(context);
       return false;
     }
   }
 
   Future<bool> signup(BuildContext context, SignupRequest req) async {
-    // Pass BuildContext
     try {
       final response = await _apiService.post(
         '/auth/signup',
@@ -82,25 +109,17 @@ class AuthService {
         await SecureStorage.setAccessToken(accessToken);
         return true;
       } else {
-        // Use ShadToaster for error message
-        ShadToaster.of(
+        showErrorToast(
           context,
-        ).show(ShadToast(title: Text('Signup failed: ${response.statusCode}')));
+          message: 'Signup failed: ${response.statusCode}',
+        );
         return false;
       }
     } on DioException catch (e) {
-      String errorMessage = 'Signup failed';
-      if (e.response != null && e.response?.data != null) {
-        errorMessage = e.response?.data['detail'] ?? errorMessage;
-      }
-      // Use ShadToaster for error message
-      ShadToaster.of(context).show(ShadToast(title: Text(errorMessage)));
+      showDioErrorToast(context, e, 'Signup failed');
       return false;
     } catch (e) {
-      // Use ShadToaster for error message
-      ShadToaster.of(
-        context,
-      ).show(const ShadToast(title: Text('An unexpected error occurred')));
+      showErrorToast(context);
       return false;
     }
   }
@@ -122,37 +141,21 @@ class AuthService {
           await _saveUserProfile(user);
           return true;
         } else {
-          // Use ShadToaster for error message
-          ShadToaster.of(context).show(
-            ShadToast(
-              title: const Text(
-                'Failed to get and store profile',
-              ), // Use destructive for errors
-            ),
-          );
+          showErrorToast(context, message: 'Failed to get and store profile');
           return false;
         }
       } else {
-        ShadToaster.of(context).show(
-          ShadToast(
-            title: Text('Face registration failed: ${response.statusCode}'),
-          ),
+        showErrorToast(
+          context,
+          message: 'Face registration failed: ${response.statusCode}',
         );
         return false;
       }
     } on DioException catch (e) {
-      String errorMessage = 'Face registration failed';
-      if (e.response != null && e.response?.data != null) {
-        errorMessage = e.response?.data['detail'] ?? errorMessage;
-      }
-      ShadToaster.of(context).show(ShadToast(title: Text(errorMessage)));
+      showDioErrorToast(context, e, 'Face registration failed');
       return false;
     } catch (e) {
-      ShadToaster.of(context).show(
-        const ShadToast(
-          title: Text('An unexpected error occurred during face registration'),
-        ),
-      );
+      showErrorToast(context);
       return false;
     }
   }

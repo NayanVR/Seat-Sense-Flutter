@@ -3,6 +3,7 @@ import 'package:seat_sense_flutter/models/signup_model.dart';
 import 'package:seat_sense_flutter/screens/face_registration_screen.dart';
 import 'package:seat_sense_flutter/screens/login_screen.dart';
 import 'package:seat_sense_flutter/services/auth_service.dart';
+import 'package:seat_sense_flutter/widgets/circular_button_loading.dart';
 import 'package:seat_sense_flutter/widgets/password_input.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -14,13 +15,17 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final _emailController = TextEditingController();
+  final _otpController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
+
   bool _isLoading = false;
+  bool _isOtpSent = false;
+  bool _isOtpVerified = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,58 +46,82 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: ShadInput(
-                      controller: _firstNameController,
-                      placeholder: const Text('First Name'),
-                    ),
+              if (!_isOtpSent || !_isOtpVerified) ...[
+                Hero(
+                  tag: 'auth-input',
+                  child: ShadInput(
+                    controller: _emailController,
+                    placeholder: const Text('Email'),
+                    keyboardType: TextInputType.emailAddress,
+                    enabled: !_isOtpSent,
                   ),
-                  Expanded(
-                    child: ShadInput(
-                      controller: _lastNameController,
-                      placeholder: const Text('Last Name'),
-                    ),
-                  ),
-                ],
-              ),
-              ShadInput(
-                controller: _emailController,
-                placeholder: const Text('Email'),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              PasswordInput(controller: _passwordController),
-              PasswordInput(
-                controller: _confirmPasswordController,
-                placeholder: 'Confirm Password',
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ShadButton(
-                  onPressed: _isLoading ? null : () => _signup(context),
-                  child:
-                      _isLoading
-                          ? SizedBox(
-                            height: 20.0,
-                            width: 20.0,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color:
-                                  ShadTheme.of(
-                                    context,
-                                  ).colorScheme.primaryForeground,
-                            ),
-                          )
-                          : const Text('Sign Up'),
                 ),
-              ),
-              SizedBox(height: 16.0),
+                if (_isOtpSent)
+                  ShadInput(
+                    controller: _otpController,
+                    placeholder: const Text('Enter OTP'),
+                    keyboardType: TextInputType.number,
+                  ),
+                if (_isOtpSent)
+                  TextButton(
+                    onPressed: _resetToEmailInput,
+                    child: const Text('Change Email'),
+                  ),
+                SizedBox(
+                  width: double.infinity,
+                  child: Hero(
+                    tag: 'auth-button',
+                    child: ShadButton(
+                      onPressed:
+                          _isLoading
+                              ? null
+                              : _isOtpSent
+                              ? _verifyOtp
+                              : _sendOtp,
+                      child:
+                          _isLoading
+                              ? const CircularButtonLoading()
+                              : Text(_isOtpSent ? 'Verify OTP' : 'Send OTP'),
+                    ),
+                  ),
+                ),
+              ] else ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: ShadInput(
+                        controller: _firstNameController,
+                        placeholder: const Text('First Name'),
+                      ),
+                    ),
+                    Expanded(
+                      child: ShadInput(
+                        controller: _lastNameController,
+                        placeholder: const Text('Last Name'),
+                      ),
+                    ),
+                  ],
+                ),
+                PasswordInput(controller: _passwordController),
+                PasswordInput(
+                  controller: _confirmPasswordController,
+                  placeholder: 'Confirm Password',
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ShadButton(
+                    onPressed: _isLoading ? null : _signup,
+                    child:
+                        _isLoading
+                            ? const CircularButtonLoading()
+                            : const Text('Sign Up'),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
               ShadButton.link(
-                child: const Text('Already have an account? Log in'),
+                child: const Text('Already have an account? Login'),
                 onPressed: () {
-                  // go back
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => const LoginScreen(),
@@ -107,16 +136,62 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Future<void> _signup(BuildContext context) async {
+  Future<void> _sendOtp() async {
     FocusScope.of(context).unfocus();
+    setState(() => _isLoading = true);
+    final email = _emailController.text.trim().toLowerCase();
 
-    setState(() {
-      _isLoading = true;
-    });
+    if (email.isEmpty) {
+      ShadToaster.of(
+        context,
+      ).show(const ShadToast(title: Text('Please enter your email')));
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    final success = await _authService.sendOtp(context, email);
+    if (success) {
+      setState(() {
+        _isOtpSent = true;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _verifyOtp() async {
+    FocusScope.of(context).unfocus();
+    setState(() => _isLoading = true);
+    final email = _emailController.text.trim().toLowerCase();
+    final otp = _otpController.text.trim();
+
+    if (otp.isEmpty) {
+      ShadToaster.of(
+        context,
+      ).show(const ShadToast(title: Text('Please enter the OTP')));
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    final success = await _authService.verifyOtp(context, email, otp);
+    if (success) {
+      setState(() {
+        _isOtpVerified = true;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signup() async {
+    FocusScope.of(context).unfocus();
+    setState(() => _isLoading = true);
 
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
-    final email = _emailController.text.trim();
+    final email = _emailController.text.trim().toLowerCase();
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
@@ -125,56 +200,47 @@ class _SignupScreenState extends State<SignupScreen> {
         email.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
-      if (mounted) {
-        ShadToaster.of(
-          context,
-        ).show(const ShadToast(title: Text('Please fill in all fields')));
-      }
-      setState(() {
-        _isLoading = false;
-      });
+      ShadToaster.of(
+        context,
+      ).show(const ShadToast(title: Text('Please fill in all fields')));
+      setState(() => _isLoading = false);
       return;
     }
 
     if (password != confirmPassword) {
-      if (mounted) {
-        ShadToaster.of(
-          context,
-        ).show(const ShadToast(title: Text('Passwords do not match')));
-      }
-      setState(() {
-        _isLoading = false;
-      });
+      ShadToaster.of(
+        context,
+      ).show(const ShadToast(title: Text('Passwords do not match')));
+      setState(() => _isLoading = false);
       return;
     }
 
-    final signupRequest = SignupRequest(
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      password: password,
+    final success = await _authService.signup(
+      context,
+      SignupRequest(
+        otp: int.parse(_otpController.text.trim()),
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+      ),
     );
 
-    final success = await _authService.signup(context, signupRequest);
-
     if (success) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const FaceRegistrationScreen(),
-          ),
-        );
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const FaceRegistrationScreen()),
+      );
     } else {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      setState(() => _isLoading = false);
     }
+  }
+
+  void _resetToEmailInput() {
+    setState(() {
+      _isOtpSent = false;
+      _isOtpVerified = false;
+      _otpController.clear();
+    });
   }
 }

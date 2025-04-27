@@ -5,7 +5,6 @@ import 'package:seat_sense_flutter/screens/occupancy_screen.dart';
 import 'package:seat_sense_flutter/services/event_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
-
 class StudentHomeContent extends StatefulWidget {
   const StudentHomeContent({super.key});
 
@@ -39,9 +38,11 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
         children: [
           GestureDetector(
             onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const OccupancyScreen()),
-                );
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const OccupancyScreen(),
+                ),
+              );
             },
             child: Stack(
               alignment: Alignment.center,
@@ -61,8 +62,8 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.black.withOpacity(
-                      0.5,
+                    color: Colors.black.withAlpha(
+                      (0.5 * 255).toInt(),
                     ), // you can also try Colors.grey.withOpacity(0.3)
                   ),
                 ),

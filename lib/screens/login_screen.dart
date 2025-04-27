@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:seat_sense_flutter/screens/home_screen.dart';
 import 'package:seat_sense_flutter/screens/signup_screen.dart';
 import 'package:seat_sense_flutter/services/auth_service.dart';
+import 'package:seat_sense_flutter/widgets/circular_button_loading.dart';
 import 'package:seat_sense_flutter/widgets/password_input.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -39,10 +40,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  ShadInput(
-                    controller: _emailController,
-                    placeholder: Text('Email'),
-                    keyboardType: TextInputType.emailAddress,
+                  Hero(
+                    tag: 'auth-input',
+                    child: ShadInput(
+                      controller: _emailController,
+                      placeholder: Text('Email'),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
                   ),
                   PasswordInput(controller: _passwordController),
                   Align(
@@ -57,22 +61,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(
                     width: double.infinity,
-                    child: ShadButton(
-                      onPressed: _isLoading ? null : () => _login(context),
-                      child:
-                          _isLoading
-                              ? SizedBox(
-                                height: 20.0,
-                                width: 20.0,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color:
-                                      ShadTheme.of(
-                                        context,
-                                      ).colorScheme.primaryForeground,
-                                ),
-                              )
-                              : const Text('Login'),
+                    child: Hero(
+                      tag: 'auth-button',
+                      child: ShadButton(
+                        onPressed: _isLoading ? null : () => _login(context),
+                        child:
+                            _isLoading
+                                ? CircularButtonLoading()
+                                : const Text('Login'),
+                      ),
                     ),
                   ),
                   SizedBox(height: 16.0),

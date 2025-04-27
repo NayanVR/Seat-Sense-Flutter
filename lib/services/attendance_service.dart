@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:seat_sense_flutter/services/api_service.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:seat_sense_flutter/utils/toasts.dart';
 
 class AttendanceService {
   final ApiService _apiService = ApiService();
@@ -29,30 +29,25 @@ class AttendanceService {
       );
 
       if (response.statusCode == 200) {
+        showSuccessToast(context, message: 'Attendance marked successfully');
         return true;
       } else {
-        ShadToaster.of(context).show(
-          ShadToast(title: Text('Server returned: ${response.statusCode}')),
+        showErrorToast(
+          context,
+          message: 'Server returned: ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
-      String errorMessage =
-          e.response?.data['detail'] ?? 'Failed to mark attendance.';
-
-      Future.delayed(Duration.zero, () {
-        ShadToaster.of(context).show(ShadToast(title: Text(errorMessage)));
-      });
+      showDioErrorToast(context, e, 'Failed to mark attendance.');
     } catch (e) {
       _logger.e('Unexpected Error: ${e.toString()}');
-      ShadToaster.of(
-        context,
-      ).show(const ShadToast(title: Text('Unexpected error occurred')));
+      showErrorToast(context);
     }
 
     return false;
   }
 
-    Future<bool> manualMarkAttendance({
+  Future<bool> manualMarkAttendance({
     required BuildContext context,
     required String email,
     required String eventId,
@@ -60,29 +55,23 @@ class AttendanceService {
     try {
       final response = await _apiService.post(
         '/attendance/mark',
-        data: {
-          'email': email,
-          'event_id': eventId,
-        },
+        data: {'email': email, 'event_id': eventId},
       );
 
       if (response.statusCode == 200) {
+        showSuccessToast(context, message: 'Attendance marked manually');
         return true;
       } else {
-        ShadToaster.of(context).show(
-          ShadToast(title: Text('Server returned: ${response.statusCode}')),
+        showErrorToast(
+          context,
+          message: 'Server returned: ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
-      String errorMessage =
-          e.response?.data['detail'] ?? 'Failed to manually mark attendance.';
-      Future.delayed(Duration.zero, () {
-        ShadToaster.of(context).show(ShadToast(title: Text(errorMessage)));
-      });
+      showDioErrorToast(context, e, 'Failed to manually mark attendance.');
     } catch (e) {
       _logger.e('Unexpected Error: ${e.toString()}');
-      ShadToaster.of(context)
-          .show(const ShadToast(title: Text('Unexpected error occurred')));
+      showErrorToast(context);
     }
 
     return false;
@@ -95,27 +84,23 @@ class AttendanceService {
     try {
       final response = await _apiService.post(
         '/attendance/delete',
-        data: {
-          'attendance_id': attendanceId
-    });
+        data: {'attendance_id': attendanceId},
+      );
 
       if (response.statusCode == 200) {
+        showSuccessToast(context, message: 'Attendance deleted successfully');
         return true;
       } else {
-        ShadToaster.of(context).show(
-          ShadToast(title: Text('Server returned: ${response.statusCode}')),
+        showErrorToast(
+          context,
+          message: 'Server returned: ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
-      String errorMessage =
-          e.response?.data['detail'] ?? 'Failed to delete attendance.';
-      Future.delayed(Duration.zero, () {
-        ShadToaster.of(context).show(ShadToast(title: Text(errorMessage)));
-      });
+      showDioErrorToast(context, e, 'Failed to delete attendance.');
     } catch (e) {
       _logger.e('Unexpected Error: ${e.toString()}');
-      ShadToaster.of(context)
-          .show(const ShadToast(title: Text('Unexpected error occurred')));
+      showErrorToast(context);
     }
 
     return false;
@@ -126,31 +111,27 @@ class AttendanceService {
     required String eventId,
   }) async {
     try {
-      final response = await _apiService.post('/attendance/by-event',
-      data: {
-        'event_id': eventId
-      });
+      final response = await _apiService.post(
+        '/attendance/by-event',
+        data: {'event_id': eventId},
+      );
+
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
         return List<Map<String, dynamic>>.from(data);
       } else {
-        ShadToaster.of(context).show(
-          ShadToast(title: Text('Server returned: ${response.statusCode}')),
+        showErrorToast(
+          context,
+          message: 'Server returned: ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
-      String errorMessage =
-          e.response?.data['detail'] ?? 'Failed to fetch attendance.';
-      Future.delayed(Duration.zero, () {
-        ShadToaster.of(context).show(ShadToast(title: Text(errorMessage)));
-      });
+      showDioErrorToast(context, e, 'Failed to fetch attendance.');
     } catch (e) {
       _logger.e('Unexpected Error: ${e.toString()}');
-      ShadToaster.of(context)
-          .show(const ShadToast(title: Text('Unexpected error occurred')));
+      showErrorToast(context);
     }
 
     return [];
   }
-
 }
