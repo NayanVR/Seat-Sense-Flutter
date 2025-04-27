@@ -30,6 +30,15 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Column(
                 children: [
+                  Hero(
+                    tag: 'logo',
+                    child: Image.asset(
+                      'lib/assets/logo.png',
+                      width: 100,
+                      height: 100,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
                   ShadInput(
                     controller: _emailController,
                     placeholder: Text('Email'),

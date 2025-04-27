@@ -32,6 +32,15 @@ class _SignupScreenState extends State<SignupScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Hero(
+                tag: 'logo',
+                child: Image.asset(
+                  'lib/assets/logo.png',
+                  width: 100,
+                  height: 100,
+                ),
+              ),
+              const SizedBox(height: 32),
               Row(
                 children: [
                   Expanded(
