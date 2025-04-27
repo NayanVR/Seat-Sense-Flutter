@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-// import 'package:seat_sense_flutter/screens/occupancy.dart';
+import 'package:seat_sense_flutter/screens/occupancy_screen.dart';
 
 
 class AdminHomeContent extends StatelessWidget {
@@ -17,8 +17,8 @@ class AdminHomeContent extends StatelessWidget {
           // View Occupancy Image Card
           GestureDetector(
             onTap: () {
-              // Navigator.push(context,
-              //   MaterialPageRoute(builder: (_) => const OccupancyScreen()));
+              Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const OccupancyScreen()));
             },
             child: Container(
               width: double.infinity,

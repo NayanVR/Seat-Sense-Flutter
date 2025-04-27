@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:seat_sense_flutter/models/event_model.dart';
 import 'package:seat_sense_flutter/screens/mark_attendance_screen.dart';
-//import 'package:seat_sense_flutter/screens/occupancy_screen.dart';
+import 'package:seat_sense_flutter/screens/occupancy_screen.dart';
 import 'package:seat_sense_flutter/services/event_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+
 
 class StudentHomeContent extends StatefulWidget {
   const StudentHomeContent({super.key});
@@ -38,9 +39,9 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
         children: [
           GestureDetector(
             onTap: () {
-              //   Navigator.of(context).push(
-              //     MaterialPageRoute(builder: (context) => const OccupancyScreen()),
-              //   );
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const OccupancyScreen()),
+                );
             },
             child: Stack(
               alignment: Alignment.center,
