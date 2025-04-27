@@ -4,7 +4,9 @@ class Event {
   final String date;
   final String startTime;
   final String endTime;
+  final String location;
   final String? description;
+
 
   Event({
     required this.id,
@@ -12,8 +14,10 @@ class Event {
     required this.date,
     required this.startTime,
     required this.endTime,
+    required this.location,
     this.description,
   });
+
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
@@ -22,9 +26,11 @@ class Event {
       date: json['date'],
       startTime: json['start_time'],
       endTime: json['end_time'],
+      location: json['location'],
       description: json['description'],
     );
   }
+
 
   Map<String, dynamic> toJson() {
     return {
@@ -33,7 +39,10 @@ class Event {
       'date': date,
       'start_time': startTime,
       'end_time': endTime,
+      'location': location,
       if (description != null) 'description': description,
     };
   }
 }
+
+
