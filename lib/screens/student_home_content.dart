@@ -50,15 +50,15 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.asset(
-                    'lib/assets/audi.jpeg',
-                    height: 180,
+                    'lib/assets/audi_ghibli.png',
+                    height: 220,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
                 ),
 
                 Container(
-                  height: 180,
+                  height: 220,
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -71,7 +71,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                   'View Occupancy',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     shadows: [Shadow(color: Colors.black, blurRadius: 4)],
                   ),
