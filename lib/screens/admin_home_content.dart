@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:seat_sense_flutter/screens/occupancy_screen.dart';
 import 'package:seat_sense_flutter/screens/view_attendance_screen.dart';
 import 'package:seat_sense_flutter/screens/view_events_screen.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 
 class AdminHomeContent extends StatelessWidget {
   const AdminHomeContent({super.key});
@@ -16,125 +15,44 @@ class AdminHomeContent extends StatelessWidget {
       child: ListView(
         children: [
           // View Occupancy Image Card
-          GestureDetector(
+          _buildImageCard(
+            context: context,
+            screenWidth: screenWidth,
+            imagePath: 'lib/assets/audi_ghibli.png',
+            title: 'View Occupancy',
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const OccupancyScreen()),
               );
             },
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'lib/assets/audi.jpeg',
-                      height: 180,
-                      width: screenWidth,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-
-                  Container(
-                    height: 180,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.black.withAlpha(
-                        (0.5 * 255).toInt(),
-                      ), // you can also try Colors.grey.withOpacity(0.3)
-                    ),
-                  ),
-                  const Text(
-                    'View Occupancy',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 6,
-                          color: Colors.black,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
 
           // View Attendance Image Card
-          GestureDetector(
+          _buildImageCard(
+            context: context,
+            screenWidth: screenWidth,
+            imagePath: 'lib/assets/audi_filled_ghibli.png',
+            title: 'View Attendance',
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const ViewAttendanceScreen()),
               );
             },
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'lib/assets/audi_filled.jpeg',
-                      height: 180,
-                      width: screenWidth,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-
-                  Container(
-                    height: 180,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.black.withAlpha(
-                        (0.5 * 255).toInt(),
-                      ), // you can also try Colors.grey.withOpacity(0.3)
-                    ),
-                  ),
-                  const Text(
-                    'View Attendance',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 6,
-                          color: Colors.black,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
 
-          // View Events Button (Shad-style)
-          ShadButton(
-            child: const Text('View Events'),
-            onPressed: () {
+          // View Events Image Card
+          _buildImageCard(
+            context: context,
+            screenWidth: screenWidth,
+            imagePath: 'lib/assets/events_ghibli_baal.png',
+            title: 'View Events',
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const ViewEventsScreen()),
@@ -142,6 +60,63 @@ class AdminHomeContent extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildImageCard({
+    required BuildContext context,
+    required double screenWidth,
+    required String imagePath,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                imagePath,
+                height: 220,
+                width: screenWidth,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Container(
+              height: 220,
+              width: screenWidth,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.black.withAlpha(
+                  (0.3 * 255).toInt(),
+                ),
+              ),
+            ),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(
+                    blurRadius: 6,
+                    color: Colors.black,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
