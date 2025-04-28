@@ -3,6 +3,7 @@ import 'package:seat_sense_flutter/models/event_model.dart';
 import 'package:seat_sense_flutter/screens/mark_attendance_screen.dart';
 import 'package:seat_sense_flutter/screens/occupancy_screen.dart';
 import 'package:seat_sense_flutter/services/event_service.dart';
+import 'package:seat_sense_flutter/widgets/image_button.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class StudentHomeContent extends StatefulWidget {
@@ -32,52 +33,22 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          GestureDetector(
+          ImageButton(
+            screenWidth: screenWidth,
+            imagePath: 'lib/assets/audi_ghibli.png',
+            title: 'View Occupancy',
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const OccupancyScreen(),
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const OccupancyScreen()),
               );
             },
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    'lib/assets/audi_ghibli.png',
-                    height: 220,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-
-                Container(
-                  height: 220,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.black.withAlpha(
-                      (0.5 * 255).toInt(),
-                    ), // you can also try Colors.grey.withOpacity(0.3)
-                  ),
-                ),
-                const Text(
-                  'View Occupancy',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    shadows: [Shadow(color: Colors.black, blurRadius: 4)],
-                  ),
-                ),
-              ],
-            ),
           ),
 
           const SizedBox(height: 16),
