@@ -216,7 +216,7 @@ class _ViewEventsScreenState extends State<ViewEventsScreen> {
             title: const Text('Confirm Deletion'),
             content: const Text('Are you sure you want to delete this event?'),
             actions: [
-              ShadButton(
+              ShadButton.outline(
                 child: const Text('Cancel'),
                 onPressed: () => Navigator.pop(context, false),
               ),
