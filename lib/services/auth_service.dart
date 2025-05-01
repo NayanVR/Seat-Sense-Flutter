@@ -160,6 +160,37 @@ class AuthService {
     }
   }
 
+  Future<bool> resetPassword(
+    BuildContext context,
+    String email,
+    String otp,
+    String newPassword,
+  ) async {
+    try {
+      final response = await _apiService.post(
+        '/auth/reset-password',
+        data: {'email': email, 'otp': otp, 'password': newPassword},
+      );
+
+      if (response.statusCode == 200) {
+        showSuccessToast(context, message: response.data['message']);
+        return true;
+      } else {
+        showErrorToast(
+          context,
+          message: 'Password reset failed: ${response.statusCode}',
+        );
+        return false;
+      }
+    } on DioException catch (e) {
+      showDioErrorToast(context, e, 'Password reset failed');
+      return false;
+    } catch (e) {
+      showErrorToast(context);
+      return false;
+    }
+  }
+
   Future<User?> getProfile() async {
     try {
       final response = await _apiService.post('/auth/profile');

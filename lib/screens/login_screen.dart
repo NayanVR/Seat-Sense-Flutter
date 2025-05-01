@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:seat_sense_flutter/screens/forgot_password_screen.dart';
 import 'package:seat_sense_flutter/screens/home_screen.dart';
 import 'package:seat_sense_flutter/screens/signup_screen.dart';
 import 'package:seat_sense_flutter/services/auth_service.dart';
@@ -55,7 +56,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: EdgeInsets.all(0),
                       child: const Text('Forgot Password?'),
                       onPressed: () {
-                        // TODO: Handle forgot password logic
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordScreen(),
+                          ),
+                        );
                       },
                     ),
                   ),
